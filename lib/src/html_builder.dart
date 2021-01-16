@@ -94,12 +94,12 @@ abstract class HTMLBuilder {
   static String _buildColorChangeJSFunction() {
     return '''
     <script type="text/javascript">
-      function changeColor(colorString) {
-        const modelViewerColor = document.querySelector("model-viewer#color");
+      function changeColor(colorString, id) {
+        const modelViewerColor = document.querySelector("model-viewer");
         const color = colorString.split(',')
                 .map(numberString => parseFloat(numberString));
-        const [material] = modelViewerColor.model.materials;
-        material.pbrMetallicRoughness.setBaseColorFactor(color);
+        const model = modelViewerColor.model;
+        model.materials[id].pbrMetallicRoughness.setBaseColorFactor(color);
       }
     </script>
     ''';
