@@ -79,7 +79,7 @@ class ModelViewer extends StatefulWidget {
   final bool enableColorChange;
 
   /// Controller to set the color of the model
-  /// Call the Function [ModelViewerColorController.changeColor(colorString)]
+  /// Call the Function [ModelViewerColorController.changeColor(colorString, id)]
   /// to set a color by an given colorString
   ModelViewerColorController colorController;
 
@@ -235,11 +235,11 @@ class _ModelViewerState extends State<ModelViewer> {
     );
   }
 
-  Future<String> _changeColor(String color) async {
+  Future<String> _changeColor(String color, int id) async {
     var c = Completer<String>();
     var webviewcontroller = await _controller.future;
     await webviewcontroller
-        .evaluateJavascript('changeColor("$color")')
+        .evaluateJavascript('changeColor("$color", $id)')
         .then((result) {
       c.complete(result);
     }).catchError((onError) {
