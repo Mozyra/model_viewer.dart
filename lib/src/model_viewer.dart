@@ -39,7 +39,7 @@ class ModelViewer extends StatefulWidget {
     this.onModelViewFinished,
     this.onModelIsVisible,
     this.onModelViewStarted,
-    this.modelStreamSubscription,
+    this.modelStream,
     this.isVerticalDragRecognizer = false,
   }) : super(key: key);
 
@@ -87,7 +87,7 @@ class ModelViewer extends StatefulWidget {
   /// to set a color by an given colorString
   final ModelViewerColorController? colorController;
 
-  final StreamSubscription<String>? modelStreamSubscription;
+  final Stream<String>? modelStream;
 
   /// Enables the auto-rotation of the model.
   final bool? autoRotate;
@@ -139,6 +139,7 @@ class _ModelViewerState extends State<ModelViewer> {
       Completer<WebViewController>();
 
   late HttpServer _proxy;
+  late StreamSubscription? _modelStreamSubscription;
 
   @override
   void initState() {
@@ -152,8 +153,8 @@ class _ModelViewerState extends State<ModelViewer> {
     //   _modelController.pathSrc = _changeModel;
     // }
 
-    if (widget.modelStreamSubscription != null) {
-      widget.modelStreamSubscription!.onData((src) {
+    if (widget.modelStream != null) {
+      _modelStreamSubscription = widget.modelStream!.listen((src) {
         _changeModel(src);
       });
     }
@@ -164,7 +165,7 @@ class _ModelViewerState extends State<ModelViewer> {
   @override
   void dispose() {
     super.dispose();
-    widget.modelStreamSubscription?.cancel();
+    _modelStreamSubscription?.cancel();
     _proxy.close(force: true);
   }
 
