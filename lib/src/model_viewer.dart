@@ -6,6 +6,8 @@ import 'dart:io'
     show File, HttpRequest, HttpServer, HttpStatus, InternetAddress, Platform;
 import 'dart:typed_data' show Uint8List;
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_android/android_content.dart' as android_content;
@@ -17,27 +19,28 @@ import 'html_builder.dart';
 
 /// Flutter widget for rendering interactive 3D models.
 class ModelViewer extends StatefulWidget {
-  ModelViewer(
-      {Key? key,
-      this.backgroundColor = Colors.white,
-      required this.src,
-      this.alt,
-      this.ar,
-      this.arModes,
-      this.arScale,
-      this.autoRotate,
-      this.autoRotateDelay,
-      this.autoPlay,
-      this.cameraControls,
-      this.enableColorChange,
-      this.colorController,
-      this.iosSrc,
-      this.onModelViewCreated,
-      this.onModelViewError,
-      this.onModelViewFinished,
-      this.onModelIsVisible,
-      this.onModelViewStarted})
-      : super(key: key);
+  ModelViewer({
+    Key? key,
+    this.backgroundColor = Colors.white,
+    required this.src,
+    this.alt,
+    this.ar,
+    this.arModes,
+    this.arScale,
+    this.autoRotate,
+    this.autoRotateDelay,
+    this.autoPlay,
+    this.cameraControls,
+    this.enableColorChange,
+    this.colorController,
+    this.iosSrc,
+    this.onModelViewCreated,
+    this.onModelViewError,
+    this.onModelViewFinished,
+    this.onModelIsVisible,
+    this.onModelViewStarted,
+    this.isVerticalDragRecognizer = false,
+  }) : super(key: key);
 
   /// The background color for the model viewer.
   ///
@@ -121,6 +124,9 @@ class ModelViewer extends StatefulWidget {
   /// Invoked when the model viewer has failed to load the resource.
   final ValueChanged<String>? onModelViewError;
 
+  /// Enables vertical drag recognizer for working inside ListView
+  final bool isVerticalDragRecognizer;
+
   @override
   State<ModelViewer> createState() => _ModelViewerState();
 }
@@ -157,6 +163,13 @@ class _ModelViewerState extends State<ModelViewer> {
   Widget build(final BuildContext context) {
     return WebView(
       initialUrl: null,
+      // ignore: prefer_collection_literals
+      gestureRecognizers: widget.isVerticalDragRecognizer
+          ? {
+              Factory<VerticalDragGestureRecognizer>(
+                  () => VerticalDragGestureRecognizer()),
+            }
+          : null,
       javascriptMode: JavascriptMode.unrestricted,
       javascriptChannels: Set.from({
         JavascriptChannel(
