@@ -1,6 +1,6 @@
 /* This is free and unencumbered software released into the public domain. */
 
-import 'dart:async' show Completer;
+import 'dart:async' show Completer, StreamSubscription;
 import 'dart:convert' show utf8;
 import 'dart:io'
     show File, HttpRequest, HttpServer, HttpStatus, InternetAddress, Platform;
@@ -16,7 +16,6 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import 'controller.dart';
 import 'html_builder.dart';
-import 'model_controller.dart';
 
 /// Flutter widget for rendering interactive 3D models.
 class ModelViewer extends StatefulWidget {
@@ -40,7 +39,7 @@ class ModelViewer extends StatefulWidget {
     this.onModelViewFinished,
     this.onModelIsVisible,
     this.onModelViewStarted,
-    this.modelController,
+    this.modelStreamSubscription,
     this.isVerticalDragRecognizer = false,
   }) : super(key: key);
 
@@ -88,7 +87,7 @@ class ModelViewer extends StatefulWidget {
   /// to set a color by an given colorString
   final ModelViewerColorController? colorController;
 
-  final ModelController? modelController;
+  final StreamSubscription<String>? modelStreamSubscription;
 
   /// Enables the auto-rotation of the model.
   final bool? autoRotate;
@@ -148,16 +147,24 @@ class _ModelViewerState extends State<ModelViewer> {
     if (_colorController != null) {
       _colorController.changeColor = _changeColor;
     }
-    var _modelController = widget.modelController;
-    if (_modelController != null) {
-      _modelController.pathSrc = _changeModel;
+    // var _modelController = widget.modelController;
+    // if (_modelController != null) {
+    //   _modelController.pathSrc = _changeModel;
+    // }
+
+    if (widget.modelStreamSubscription != null) {
+      widget.modelStreamSubscription!.onData((src) {
+        _changeModel(src);
+      });
     }
+
     _initProxy();
   }
 
   @override
   void dispose() {
     super.dispose();
+    widget.modelStreamSubscription?.cancel();
     _proxy.close(force: true);
   }
 
