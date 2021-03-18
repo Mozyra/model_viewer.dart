@@ -168,6 +168,8 @@ class _ModelViewerState extends State<ModelViewer> {
           ? {
               Factory<VerticalDragGestureRecognizer>(
                   () => VerticalDragGestureRecognizer()),
+              Factory<HorizontalDragGestureRecognizer>(
+                  () => HorizontalDragGestureRecognizer()),
             }
           : null,
       javascriptMode: JavascriptMode.unrestricted,
