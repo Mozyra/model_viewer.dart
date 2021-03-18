@@ -16,6 +16,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import 'controller.dart';
 import 'html_builder.dart';
+import 'model_controller.dart';
 
 /// Flutter widget for rendering interactive 3D models.
 class ModelViewer extends StatefulWidget {
@@ -39,6 +40,7 @@ class ModelViewer extends StatefulWidget {
     this.onModelViewFinished,
     this.onModelIsVisible,
     this.onModelViewStarted,
+    this.modelController,
     this.isVerticalDragRecognizer = false,
   }) : super(key: key);
 
@@ -84,7 +86,9 @@ class ModelViewer extends StatefulWidget {
   /// Controller to set the color of the model
   /// Call the Function [ModelViewerColorController.changeColor(colorString, id)]
   /// to set a color by an given colorString
-  ModelViewerColorController? colorController;
+  final ModelViewerColorController? colorController;
+
+  final ModelController? modelController;
 
   /// Enables the auto-rotation of the model.
   final bool? autoRotate;
@@ -143,6 +147,10 @@ class _ModelViewerState extends State<ModelViewer> {
     var _colorController = widget.colorController;
     if (_colorController != null) {
       _colorController.changeColor = _changeColor;
+    }
+    var _modelController = widget.modelController;
+    if (_modelController != null) {
+      _modelController.pathSrc = _changeModel;
     }
     _initProxy();
   }
@@ -249,8 +257,8 @@ class _ModelViewerState extends State<ModelViewer> {
 
   Future<String> _changeColor(String color, int id) async {
     var c = Completer<String>();
-    var webviewcontroller = await _controller.future;
-    await webviewcontroller
+    var webviewController = await _controller.future;
+    await webviewController
         .evaluateJavascript('changeColor("$color", $id)')
         .then((result) {
       c.complete(result);
@@ -258,6 +266,23 @@ class _ModelViewerState extends State<ModelViewer> {
       c.completeError(onError.toString());
     });
     return c.future;
+  }
+
+  void _changeModel(String newPath) async {
+    final url = Uri.parse(newPath);
+    final data = await (url.isScheme("file")
+        ? _readFile(url.path)
+        : _readAsset(url.path));
+    _proxy.listen((final HttpRequest request) async {
+      final response = request.response;
+      response
+        ..statusCode = HttpStatus.ok
+        ..headers.add("Content-Type", "application/octet-stream")
+        ..headers.add("Content-Length", data.lengthInBytes.toString())
+        ..headers.add("Access-Control-Allow-Origin", "*")
+        ..add(data);
+      await response.close();
+    });
   }
 
   String _buildHTML(final String htmlTemplate) {
