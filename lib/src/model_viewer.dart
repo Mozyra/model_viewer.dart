@@ -18,9 +18,9 @@ import 'html_builder.dart';
 /// Flutter widget for rendering interactive 3D models.
 class ModelViewer extends StatefulWidget {
   ModelViewer(
-      {Key key,
+      {Key? key,
       this.backgroundColor = Colors.white,
-      @required this.src,
+      required this.src,
       this.alt,
       this.ar,
       this.arModes,
@@ -35,7 +35,7 @@ class ModelViewer extends StatefulWidget {
       this.onModelViewCreated,
       this.onModelViewError,
       this.onModelViewFinished,
-      this.onModelIsVisisble,
+      this.onModelIsVisible,
       this.onModelViewStarted})
       : super(key: key);
 
@@ -61,65 +61,65 @@ class ModelViewer extends StatefulWidget {
   /// Configures the model with custom text that will be used to describe the
   /// model to viewers who use a screen reader or otherwise depend on additional
   /// semantic context to understand what they are viewing.
-  final String alt;
+  final String? alt;
 
   /// Enable the ability to launch AR experiences on supported devices.
-  final bool ar;
+  final bool? ar;
 
   /// A prioritized list of the types of AR experiences to enable, if available.
-  final List<String> arModes;
+  final List<String>? arModes;
 
   /// Controls the scaling behavior in AR mode in Scene Viewer. Set to "fixed"
   /// to disable scaling of the model, which sets it to always be at 100% scale.
   /// Defaults to "auto" which allows the model to be resized.
-  final String arScale;
+  final String? arScale;
 
   /// Enable the ability to change the color of the model with the [ModelViewerColorController]
   /// If this value is set to true, it's possible to set the color of the model.
-  final bool enableColorChange;
+  final bool? enableColorChange;
 
   /// Controller to set the color of the model
   /// Call the Function [ModelViewerColorController.changeColor(colorString, id)]
   /// to set a color by an given colorString
-  ModelViewerColorController colorController;
+  ModelViewerColorController? colorController;
 
   /// Enables the auto-rotation of the model.
-  final bool autoRotate;
+  final bool? autoRotate;
 
   /// Sets the delay before auto-rotation begins. The format of the value is a
   /// number in milliseconds. The default is 3000.
-  final int autoRotateDelay;
+  final int? autoRotateDelay;
 
   /// If this is true and a model has animations, an animation will
   /// automatically begin to play when this attribute is set (or when the
   /// property is set to true). The default is false.
-  final bool autoPlay;
+  final bool? autoPlay;
 
   /// Enables controls via mouse/touch when in flat view.
-  final bool cameraControls;
+  final bool? cameraControls;
 
   /// The URL to a USDZ model which will be used on supported iOS 12+ devices
   /// via AR Quick Look.
-  final String iosSrc;
+  final String? iosSrc;
 
   /// Invoked once when the model viewer is created.
-  final VoidCallback onModelViewCreated;
+  final VoidCallback? onModelViewCreated;
 
   /// Invoked when the model viewer has finished loading the url.
-  final VoidCallback onModelViewStarted;
+  final VoidCallback? onModelViewStarted;
 
   /// Invoked when the model viewer has finished loading the url.
   ///
   /// Please note: This function is invoked when the url has finished loading,
   /// but it doesn't represents the finished loading process of the model visibility.
-  final VoidCallback onModelViewFinished;
+  final VoidCallback? onModelViewFinished;
 
   /// Invoked when the model viewer has loaded the model and the model is visibile.
   /// See: https://modelviewer.dev/docs/#entrydocs-loading-events-modelVisibility
-  final VoidCallback onModelIsVisisble;
+  final VoidCallback? onModelIsVisible;
 
   /// Invoked when the model viewer has failed to load the resource.
-  final ValueChanged<String> onModelViewError;
+  final ValueChanged<String>? onModelViewError;
 
   @override
   State<ModelViewer> createState() => _ModelViewerState();
@@ -129,7 +129,7 @@ class _ModelViewerState extends State<ModelViewer> {
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
 
-  HttpServer _proxy;
+  late HttpServer _proxy;
 
   @override
   void initState() {
@@ -144,10 +144,7 @@ class _ModelViewerState extends State<ModelViewer> {
   @override
   void dispose() {
     super.dispose();
-    if (_proxy != null) {
-      _proxy.close(force: true);
-      _proxy = null;
-    }
+    _proxy.close(force: true);
   }
 
   @override
@@ -165,9 +162,9 @@ class _ModelViewerState extends State<ModelViewer> {
         JavascriptChannel(
             name: 'messageIsVisibile',
             onMessageReceived: (JavascriptMessage message) {
-              if (widget.onModelIsVisisble != null) {
+              if (widget.onModelIsVisible != null) {
                 if (message.message == 'true') {
-                  widget.onModelIsVisisble();
+                  widget.onModelIsVisible!();
                 }
               }
             }),
@@ -181,7 +178,7 @@ class _ModelViewerState extends State<ModelViewer> {
         print('>>>> ModelViewer initializing... <$url>'); // DEBUG
         await webViewController.loadUrl(url).then((value) {
           if (widget.onModelViewCreated != null) {
-            widget.onModelViewCreated();
+            widget.onModelViewCreated!();
           }
         });
       },
@@ -214,19 +211,19 @@ class _ModelViewerState extends State<ModelViewer> {
       },
       onPageStarted: (final String url) {
         if (widget.onModelViewStarted != null) {
-          widget.onModelViewStarted();
+          widget.onModelViewStarted!();
         }
         //print('>>>> ModelViewer began loading: <$url>'); // DEBUG
       },
       onPageFinished: (final String url) {
         if (widget.onModelViewFinished != null) {
-          widget.onModelViewFinished();
+          widget.onModelViewFinished!();
         }
         //print('>>>> ModelViewer finished loading: <$url>'); // DEBUG
       },
       onWebResourceError: (final WebResourceError error) {
         if (widget.onModelViewError != null) {
-          widget.onModelViewError(error.description);
+          widget.onModelViewError!(error.description);
         }
 
         print(

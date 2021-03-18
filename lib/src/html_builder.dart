@@ -9,18 +9,18 @@ abstract class HTMLBuilder {
 
   static String build(
       {final String htmlTemplate = '',
-      @required final String src,
+      required final String src,
       final Color backgroundColor = const Color(0xFFFFFF),
-      final String alt,
-      final bool ar,
-      final List<String> arModes,
-      final String arScale,
-      final bool autoRotate,
-      final int autoRotateDelay,
-      final bool autoPlay,
-      final bool cameraControls,
-      final bool enableColorChange,
-      final String iosSrc}) {
+      final String? alt,
+      final bool? ar,
+      final List<String>? arModes,
+      final String? arScale,
+      final bool? autoRotate,
+      final int? autoRotateDelay,
+      final bool? autoPlay,
+      final bool? cameraControls,
+      final bool? enableColorChange,
+      final String? iosSrc}) {
     final html = StringBuffer(htmlTemplate);
     html.write('<model-viewer');
     html.write(' src="${htmlEscape.convert(src)}"');

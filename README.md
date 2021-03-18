@@ -30,7 +30,7 @@ Android and iOS, with [a recent system browser version](https://modelviewer.dev/
 
 ```yaml
 dependencies:
-  model_viewer: ^0.8.1
+  model_viewer: ^0.9.0-nullsafety.0
 ```
 
 ### `AndroidManifest.xml` (Android 9+ only)
